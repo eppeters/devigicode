@@ -157,11 +157,23 @@ def get_key_counts(most_common_ltrs):
 
     return None ## PLACEHOLDER -- REMOVE
 
-##Returns a tuple of base10 numbers that represent the place values of base10Num in base x.
-##Can be used to easily treat a base10 number as if it were a base base number.
-def baseX_digs(base10Num, x):
+##Returns a list of base10 numbers that represent the place values of base10Num in base x.
+##Can be used to easily treat a base10 number as if it were a base x number.
+def baseX_digs(num, base, exp = 0):
 
-    return None ## PLACEHOLDER -- REMOVE
+    assert base > 0, "Base cannot be 0 or negative."
+    
+    if (num * (base ** exp) < base) and exp == 0:
+        
+        return [num]
+
+    elif exp == 0:
+
+        ##Find most significant digit.
+        while num / (base ** exp) >= base:
+            exp += 1
+
+    return [num / base ** exp] + (baseX_digs(num % base ** exp, base, exp - 1))
 
 ##Returns a tuple of the shifts needed to encrypt plaintext into ciphertext.
 def get_shifts(plaintext, ciphertext):
