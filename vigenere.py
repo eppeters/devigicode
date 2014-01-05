@@ -3,17 +3,6 @@ import operator
 
 WORDLIST_FILENAME = "words.txt"
 
-ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-
-MOST_COMMON_ENG = "etnorias"
-
-##Length of key used to encrypt ciphertext. Determines the interval length.
-KEY_LENGTH = 3
-
-WORDS = load_words()
-
-CIPHERTEXT = "ctmyrdoibsresrrrijyrebyldiymlccyqxsrrmlqfsdxfowfktcyjrriqzsmx"
-
 ##words.txt and load_words() code from MIT's OCW ...
 def load_words():
     """
@@ -31,6 +20,21 @@ def load_words():
     wordlist = string.split(line)
     print "  ", len(wordlist), "words loaded."
     return wordlist
+
+WORDS = load_words()
+
+ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+
+MOST_COMMON_ENG = "etnorias"
+
+##Length of key used to encrypt ciphertext. Determines the interval length.
+KEY_LENGTH = 3
+
+CIPHERTEXT = "ctmyrdoibsresrrrijyrebyldiymlccyqxsrrmlqfsdxfowfktcyjrriqzsmx"
+
+NUM_STR_TO_PRNT = 5
+
+##TEST_DICT = {}#{5:[("domino", "Franciscan monks")], 3:[("gary", "Elephantitis is bad.")], 17:[("grant", "Ropes are sometimes slippery."), ("branch", "Anti-matter does not matter"), ("skills", "unknown palindrome")]} ## //DEBUGGING ONLY
 
 ##Build and return list of frequencies of letters on each interval.
 def count_letters(ciphertext):
@@ -59,7 +63,7 @@ def most_freq_letters(frequencies, printYN = False):
         print "\nInterval ", i + 1, " letter frequencies:\n"
         frequencies[i] = sorted(frequencies[i].items(), None, key=operator.itemgetter(1), reverse=True)
 
-        mostComL += frequencies[i][0][0]
+        mostComL += ord(frequencies[i][0][0])
         
         if printYN:
             for j in frequencies[i]:
@@ -83,42 +87,79 @@ def get_letter_freqs(ciphertext):
     ##    alphabet MOST_COMMON_ENG, 
     ##       Meaning, for each number 0 through len(MOST_COMMON_ENG)**KEY_LENGTH,
     ##       convert that number to a tuple of base len(MOST_COMMON_ENG) numbers.
-    ##       Call the tuple baseXPerm.
+    ##       Call the tuple permutation.
     ##2 - For i in len(mostComL), calculate the shift amount needed to transform
-    ##    the ciphertext letter ord(mostComL[i]) into the plaintext letter baseXPerm[i]. Store the result
+    ##    the ciphertext letter ord(mostComL[i]) into the plaintext letter permutation[i]. Store the result
     ##    in a tuple called shifts. Create a string made of these shifts and call it keyword.
-    ##3 - For i in len(ciphertext), temp += (ord[ciphertext[i]] - 97) - (shift amount of
-    ##    shifts index i % KEY_LENGTH).
+    ##3 - For i in len(ciphertext), temp += ord[ciphertext[i]] - shift amount of
+    ##    (shifts index i % KEY_LENGTH).
     ##4 - For word in WORDS, if word in temp, increment wordcount by 1.
     ##5 - If wordcount > 0, append tuple of temp and keyword to list in dict
     ##    wordcountDict at key wordcount.
     ##6 - sortedWordcounts = sorted(wordCountDict, None, None, reverse=True)
-    ##7 - for i in range(0, NUM_STR_TO_PRNT), try print "keyword is ", sortedWordcounts[i][1],
-    ##    " for:\n", sortedWordcounts[i][0], "\n"
+    ##7 - for i in range(0, NUM_STR_TO_PRNT), try print "keyword is ", sortedWordcounts[i][0],
+    ##    " for:\n", sortedWordcounts[i][1], "\n"
     ##    except (IndexError)
     ##       print "Only ", i, " results.\n"
 
-def disp_best_keys(most_common_ltrs):
-    
-    print get_best_keys(most_common_letters)
+##DEBUGGED
+##Prints NUM_STR_TO_PRNT guesses in descending order.
+def disp_best_guesses(bestGuesses):
 
-##Gets the NUM_STR_TO_PRNT best keys based on how many dictionary words they contain.
-def get_best_keys(most_common_ltrs):
+    ##Creates a sorted list of tuples in form (<int>, <list> <tuple>, <tuple>, ... </list>)
+    sortedGuesses = sorted(bestGuesses.items(), None, key=operator.itemgetter(0), reverse=True)
 
-    for base10Perm in range(0, len(MOST_COMMON_ENG) ** KEY_LENGTH):
+    for i in range(0, NUM_STR_TO_PRNT):
+        
+        try:
 
-        baseXPerm = baseX_digs(base10Perm, len(MOST_COMMON_ENG))
+            keyTextList = sortedGuesses[i][1]
+            
+            print "\n\n======================================="
+            print "Number of words: ", sortedGuesses[i][0]
 
-        shifts = get_shifts(baseXPerm, most_common_ltrs)
+            for keyTextPair in keyTextList:
 
-        keyword = 
+                print "\n\nKey: ", keyTextPair[0]
+                print "----------------------------------------"
+                print "Plaintext: ", keyTextPair[1]
+                
+        except (IndexError):
+
+            if (i == 0):
+                print "No results."
+
+            else:
+                print "\n\n!!!"
+                print "Only ", i, " results."
+            
+            break
+
+##Puts the keywords that produce a plaintext containing more than one wordlist word
+##into a dict.
+def get_key_counts(most_common_ltrs):
+
+    wordcountDict = dict()
+
+    for permutation in range(0, len(MOST_COMMON_ENG) ** KEY_LENGTH):
+
+        permutation = baseX_digs(base10Perm, len(MOST_COMMON_ENG))
+
+        shifts = get_shifts(permutation, most_common_ltrs)
+
+        keyword = make_keyword(shifts)
+
+        check_guess(keyword, wordcountDict)
+
+        ##print wordcountDict ##DEBUGGING ONLY
+
         
 
     return None ## PLACEHOLDER -- REMOVE
 
-##Returns a tuple of base10 numbers that represent the place values of base10Num in base base.
+##Returns a tuple of base10 numbers that represent the place values of base10Num in base x.
 ##Can be used to easily treat a base10 number as if it were a base base number.
-def baseX_digs(base10Num, base):
+def baseX_digs(base10Num, x):
 
     return None ## PLACEHOLDER -- REMOVE
 
@@ -127,3 +168,32 @@ def get_shifts(plaintext, ciphertext):
 
     return None
 
+def make_keyword(shifts):
+
+    return None
+
+def decrypt(keyword, ciphertext = CIPHERTEXT):
+
+    return None
+
+##Checks how many wordlist words a keyword's plaintext has, then adds that to
+##the dict of keywords if the number is at least 1.
+def check_guess(keyword, keywordDict):
+
+    plaintextGuess = decrypt(keyword)
+
+    guessNumWords = count_words(plaintextGuess)
+
+    if  guessNumWords > 0:
+
+        if not keywordDict.has_key(guessNumWords):
+
+            keywordDict[guessNumWords] = list()
+
+        keywordDict[guessNumWords].append((keyword, plaintextGuess))
+
+    return None
+        
+def count_words(text):
+
+    return None
